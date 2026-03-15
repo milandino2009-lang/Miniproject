@@ -1,0 +1,159 @@
+<?php
+
+$host = "localhost";
+$user = "root";
+$password = "";
+$dbname = "Bibliotheek";
+
+$conn = new mysqli($host, $user, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+?>
+
+<?php include "config.php"; ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bibliotheek</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<nav>
+<a href="index.php">Home</a>
+<a href="books.php">Boek overzicht</a>
+<a href="add_book.php">Boek toevoegen</a>
+</nav>
+</header>
+
+<section class="hero">
+<h2>Welkom bij de Bibliotheek</h2>
+<p>Bekijk onze collectie</p>
+</section>
+
+<hr>
+
+<section class="new-books">
+<h3>Nieuwe boeken</h3>
+
+<div class="book-container">
+
+<?php
+$sql = "SELECT * FROM books ORDER BY created_at DESC LIMIT 3";
+$result = $conn->query($sql);
+
+while($row = $result->fetch_assoc()){
+?>
+
+<div class="book-card">
+<img src="<?php echo $row['image']; ?>" width="120">
+<p><?php echo $row['title']; ?></p>
+</div>
+
+<?php } ?>
+
+</div>
+</section>
+
+<footer>
+
+<div>
+<h4>Openingstijden</h4>
+<p>Mon - Fri 9:00 - 18:00</p>
+</div>
+
+<div>
+<h4>Contact</h4>
+<p>Email: bibliotheek@gmail.com</p>
+</div>
+
+</footer>
+
+</body>
+</html>
+
+<?php include "config.php"; ?>
+
+<?php
+
+if(isset($_POST['submit'])){
+
+$title = htmlspecialchars($_POST['title']);
+$author = htmlspecialchars($_POST['author']);
+$category = htmlspecialchars($_POST['category']);
+$image = htmlspecialchars($_POST['image']);
+
+if(empty($title)){
+    echo "Titel is verplicht!";
+}else{
+
+$sql = "INSERT INTO books(title,author,category,image)
+VALUES('$title','$author','$category','$image')";
+
+$conn->query($sql);
+
+header("Location: books.php");
+
+}
+
+}
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Boek toevoegen</title>
+<link rel="stylesheet" href="style.css">
+<script src="script.js"></script>
+</head>
+
+<body>
+
+
+<h2>Boek toevoegen</h2>
+
+<form method="POST" onsubmit="return validateForm()">
+
+<input type="text" name="title" id="title" placeholder="Titel" required><br>
+
+<input type="text" name="author" placeholder="Auteur"><br>
+
+<input type="text" name="publicatiejaar" placeholder="Publicatiejaar"><br>
+
+<input type="url" name="categorie" placeholder="Categorie URL"><br>
+
+<button type="submit" name="submit">Toevoegen</button>
+
+</form>
+
+</body>
+</html>
+
+<?php include "config.php"; ?>
+
+<h2>Alle boeken</h2>
+
+<?php
+
+$sql = "SELECT * FROM books";
+$result = $conn->query($sql);
+
+while($row = $result->fetch_assoc()){
+
+echo "<div>";
+echo "<img src='".$row['image']."' width='100'>";
+echo "<h3>".$row['title']."</h3>";
+echo "<p>".$row['author']."</p>";
+echo "<p>".$row['category']."</p>";
+echo "</div>";
+
+}
+
+?>
